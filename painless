@@ -1,0 +1,91 @@
+#Painless Sparse Coding with Theano
+
+In this post, we will show how to use Theano for learning sparse codes of natural images. This example introduces top (theano optimization module) and show how simple it is to do machine learning with Theano.
+
+First, let us pose the sparse coding problem. Let your data s be modeled as s=Ax, where A is a matrix of basis vectors that expand your representation space and x the coefficients that weight each basis to compose x. Given s only, s=Ax is ill-posed, but assuming that the basis vector have unit norm and a Laplacian prior on x, we have constraints enough for a fiseable model
+
+Those particular constraints have several roots, but here we are not interested in motivating those constraints. Let us just point out that the Occam's Razor in this case means that the simplest code x is obtained with minimum L1 norm (check the logarithm of the Laplacian distribution to convince yourself). This way, we find the sparse code for s by minimizing:
+
+L = (s - Ax)^2 + \lambda * |x|_1
+
+That being said, given s, we can alternate the optimization of x and A by following the negative gradient direction of L. Here we will show how to do that with Theano.
+
+First download some natural image pathces from here.
+
+Now let us code:
+
+from scipy.io import loadmat
+import numpy as np
+from sklearn.preprocessing import scale
+import theano
+from theano import tensor as T
+import theano_optim
+
+def load_patches(data_path='./patches.mat'):
+    matfile = loadmat(data_path)
+    data = matfile['data']
+    data = np.float32(data)
+    data = scale(data.T, with_std=False)
+    return data
+
+The code above load the image pathces from the file you just download. Note that we removed the mean of the patches, this is important because all those codes out there with fixed norm basis optimized by mean squared errors (aka Fourier, Wavelet, ICA, PCA, etc) will focus all their resources at capturing boring DC values (they just want to minize MSE anyways, right?).  Now let us define the function that we discussed above:
+
+def loss(A,x,s):
+    l1_decay = T.sqrt( x**2 + 1e-6 ).sum()
+    er = ((s-T.dot(x,A))**2)
+    return er.sum() + .1 * l1_decay
+
+Note that here we are using the approximation |x| \approx \sqrt(x^2 +1e-6) as proposed in the Sparse Filtering paper. You could use any approximation you like here (or use Fista for the optimization, but let us talk about this later). Also, you may ask about the constraints about the norm of A that we mentioned. It turns out that you can add the expression (A**2).sum() to the cost function and achieve that (exercise for the reader) or you can renormalize A after each iteration:
+
+def renorm(A):
+    #A = np.dot(A.T, np.diag(1./np.sqrt(np.sum(A**2, axis=1)))).T
+    updates = {}
+    updates[A] = T.dot(A.T, T.diag(1./T.sqrt(T.sum(A**2, axis=1)))).T
+    renorm = theano.function([],A,updates=updates)
+    renorm()
+    return A
+
+Sorry for the ugly code, but the reasoning is the following. We assume that A will be a Theano shared variable, thus, the best way to modify it is through a function update.
+
+The following code initializes our variables:
+
+data = load_patches()
+A = theano.shared( np.random.rand(neurons, 256).astype(theano.config.floatX) )
+renorm(A)
+x = theano.shared( np.random.rand(batch, neurons).astype(theano.config.floatX) )
+ss = T.matrix()
+cost = loss(A,x,ss)
+
+The only simbolic variable here is ss, this is a placeholder for the batches of s that we will input to the method. Now let us independent optimizers for each variable
+
+opt_X = theano_optim.Optimizer(x,cost,input=ss,learning_rate=0.001,momentum=.9,method='rmsprop')
+opt_A = theano_optim.Optimizer(A,cost,input=ss,learning_rate=0.06,constant=x)
+
+We use simple stochastic gradient descent for A, but x needs a faster method, here we chose RMSprop that works fair enough for this problem.
+
+And here is the surprise 
+
+opt_X.compile()
+opt_A.compile()
+for epk in range(epochs):
+    i = int(np.random.randint(499,size=1))
+    s = data[i*batch:(i+1)*batch]
+    print 'Epock: %d, Cost: %f' %(epk,opt_X.f(s))
+    opt_X.run(100,s)
+    opt_A.run(1,s)
+    renorm(A)
+    #Train coefficients
+    save_A(A.get_value())
+
+Boom! All you need is to compile the optimizer and Theano will derive for you the gradients for you using its simbolic differentiation. The method run of the optimizer just implements an integer number of steps (first parameter) using the batch (second parameter, s) as input. The get_batch and save_A functions are utilitary codes that simply do what their names say. 
+
+After some iterations like those, you will get as the columns of A the famous Gabor like receptive fields show in the figure below.
+
+The first time that I tried sparse coding, I was commiting the following mistakes:
+1. Renorm the rows of A. 
+I was not normalizing or doing it at the columns of A. Note that what is necessary is a competive (thus nonlinear normalization) each pixel across the basis function compete with each other to be active, this avoid redundant code. This is also what makes them localized in space. I still remember how many hours I spent debugging my code because the wrong normalization was breaking it... It still hurts. I hope you don't make the same mistakes
+2. Use minibatches
+Real data is redundant, we go into mini-batches here to help the codes not being biased.  
+3. Remove the mean.
+SVMs, those codes... I don't know how many methods for sensorial data analysis are benefited by removing the mean... give it a try!
+
