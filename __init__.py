@@ -8,7 +8,7 @@ my1 = T.constant(np.array(1.0,dtype=theano.config.floatX))
 floatX = theano.config.floatX
 zero = np.zeros(1).astype(floatX)[0]
 
-def AdaGrad(params, cost, lr=1.0, eps=1e-6):
+def AdaGrad(params, cost, lr=1.0, eps=1e-6, lr_rate=None):
     grads = T.grad(cost, params)
     accum = [theano.shared(param.get_value()*zero) for param in params]
     updates = []
@@ -16,34 +16,7 @@ def AdaGrad(params, cost, lr=1.0, eps=1e-6):
         a_i = a + g**2
         updates.append((a, a_i))
         updates.append((p, p - lr * g / T.sqrt(a_i + eps)))
-    return OrderedDict(updates)
-
-def Adam2(cost, params, lr=0.0002, b1=0.1, b2=0.001, e=1e-8):
-    '''
-    Modified from Newmu gist: 
-    https://gist.github.com/Newmu/acb738767acb4788bac3
-    He is under The MIT License
-    '''
-    updates = []
-    grads = T.grad(cost, params)
-    i = theano.shared(zero)
-    i_t = i + 1.
-    fix2 = 1. - (1. - b2)**i_t
-    lr_t = lr * (T.sqrt(fix2) / fix1)
-    b1t  = 1 - (1-b1)*e**(-(i_t-1)) 
-    for p, g in zip(params, grads):
-        m = theano.shared(p.get_value() * 0.)
-        v = theano.shared(p.get_value() * 0.) 
-        b1t = 1. - (1. - b1)*e**i
-        m_t = (b1t * g) + ((1. - b1t) * m)
-        v_t = (b2 * T.sqr(g)) + ((1. - b2) * v)
-        g_t = m_t / (T.sqrt(v_t) + e)
-        p_t = p - (lr_t * g_t)
-        updates.append((m, m_t))
-        updates.append((v, v_t))
-        updates.append((p, p_t))
-    updates.append((i, i_t))
-    return updates
+    return lr_m_schedule(updates, lr, None, lr_rate, None)
 
 def Adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8):
     '''
@@ -69,31 +42,6 @@ def Adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8):
         updates.append((p,p_t))
     updates.append((i, i_t))
     return OrderedDict(updates)
-
-def rmsprop2(parameters, cost, lr=1.0, momentum=0.9, epsilon=1e-6,
-            lr_rate=None, m_rate=None):
-    """
-    This function was taken from Sander Dieleman's github: https://github.com/benanne/kaggle-galaxies/
-    epsilon is not included in Hinton's video, but to prevent problems with relus repeatedly having 0 gradients, it is included here.
-
-    Watch this video for more info: http://www.youtube.com/watch?v=O3sxAc4hxZU (formula at 5:20)
-
-    also check http://climin.readthedocs.org/en/latest/rmsprop.html
-    """
-    #all_grads = [theano.grad(cost, param) for param in parameters]
-    all_grads = theano.grad(cost, parameters,disconnected_inputs='warn')
-    #all_accumulators = [theano.shared(param.get_value()*0.) for param in parameters] # initialise to zeroes with the right shape
-    # all_accumulators = [theano.shared(param.get_value()*1.) for param in all_parameters] # initialise with 1s to damp initial gradients
-
-    updates = OrderedDict() #[]
-
-    for param_i, grad_i, acc_i in zip(parameters, all_grads): #, all_accumulators):
-        acc_i = theano.shared(param.get_value()*0.)
-        acc_i_new = momentum * acc_i + (1 - momentum) * grad_i**2
-        updates.append((acc_i, acc_i_new))
-        updates.append((param_i, param_i - lr * grad_i / T.sqrt(acc_i_new + epsilon)))
-
-    return lr_m_schedule(updates, lr_rate, m_rate)
 
 def rmsprop(parameters,cost=None,gradients=None,
         updates=None,lr=2e-2, consider_constant = [], epsilon=1e-8,
@@ -122,13 +70,6 @@ def rmsprop(parameters,cost=None,gradients=None,
             w = param + momentum * v - lr * grad/ T.sqrt(new_accum + epsilon)
             updates.append((mparam, v))
             updates.append((param, w))
-            #step = theano.shared(param.get_value()*0.)
-            #step2 = scale * lr * grad/ T.sqrt(new_accum + epsilon)
-            #updates[mparam] = param - momentum * step
-            #updates[param]  = mparam - step2             
-            #updates[step]   = momentum * step + step2 
-            #updates[param]  = param - lr * mparam
-            #updates[mparam] = mparam*momentum + grad / T.sqrt(new_accum + epsilon)
         else:
             updates.append((param, param - scale*lr*grad / T.sqrt(new_accum + epsilon)))
 
@@ -200,7 +141,7 @@ class Optimizer():
       updates = rmsprop(self.p,self.cost, lr=self.lr, momentum=self.m,
                         lr_rate=self.lr_rate, m_rate=self.m_rate, consider_constant=self.cc)
     elif self.method.lower() == 'adam':
-      updates = Adam(self.p, self.cost, lr=self.lr)
+      updates = Adam(self.p, self.cost, lr=self.lr, lr_rate=self.lr_rate)
     elif self.method.lower() == 'adagrad':
       updates = AdaGrad(self.p, self.cost, lr=self.lr)
     else:
@@ -236,7 +177,7 @@ class Optimizer():
   '''
 
 def test1():
-  x = theano.shared(np.asarray(5., dtype=theano.config.floatX))
+  x = theano.shared(np.asarray(5.).astype(theano.config.floatX))
   cost = T.sqr(x)
   opt = Optimizer(x, cost, method='rmsprop', learning_rate=.1, momentum=.5,
                   lr_rate=.998,m_rate=1.0001)
