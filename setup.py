@@ -14,7 +14,7 @@ setuptools.setup(
     url='http://github.com/EderSantana/top/',
     install_requires=['numpy',
                       'scipy',
-                      'theano],
+                      'theano'],
     classifiers=['Development Status :: 1 - Alpha',
                  'Intended Audience :: Science/Research',
                  'License :: MIT License',
