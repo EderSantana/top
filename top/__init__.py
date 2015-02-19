@@ -3,6 +3,7 @@ import theano.tensor as T
 import numpy as np
 from theano.ifelse import ifelse
 from theano.compat.python2x import OrderedDict
+
 my0 = T.constant(np.array(0.0,dtype=theano.config.floatX))
 my1 = T.constant(np.array(1.0,dtype=theano.config.floatX))
 floatX = theano.config.floatX
@@ -141,7 +142,7 @@ class Optimizer():
       updates = rmsprop(self.p,self.cost, lr=self.lr, momentum=self.m,
                         lr_rate=self.lr_rate, m_rate=self.m_rate, consider_constant=self.cc)
     elif self.method.lower() == 'adam':
-      updates = Adam(self.p, self.cost, lr=self.lr, lr_rate=self.lr_rate)
+      updates = Adam(self.p, self.cost, lr=self.lr)
     elif self.method.lower() == 'adagrad':
       updates = AdaGrad(self.p, self.cost, lr=self.lr, lr_rate=self.lr_rate)
     else:
