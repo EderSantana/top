@@ -133,7 +133,7 @@ class Optimizer():
   """
   def __init__(self, parameters, cost, method='sgd',input=[], givens=None,
                constant=None,learning_rate=.001, momentum=None,
-               lr_rate=None, m_rate=None, extra_updates=[]):
+               lr_rate=None, m_rate=None, extra_updates=None):
     if not isinstance(parameters,list):
         parameters = [parameters]
     self.p = parameters
