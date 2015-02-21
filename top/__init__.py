@@ -10,6 +10,15 @@ floatX = theano.config.floatX
 zero = np.zeros(1).astype(floatX)[0]
 
 def AdaGrad(params, cost, lr=1.0, eps=1e-6, lr_rate=None):
+    """AdaGrad algorithm proposed was proposed in No More Pesky Learning
+    Rates by Schaul et. al.
+    
+    :param params: list of :class:theano.shared variables to be optimized 
+    :param cost: cost function that should be minimized in the optimization
+    :param float lr: learning rate
+    :param float eps: small constant to avoid division by zero
+    :param float lr_rate: learning rate change factor. Ot should be smaller, but close to one
+    """
     grads = T.grad(cost, params)
     accum = [theano.shared(param.get_value()*zero) for param in params]
     updates = []
@@ -20,11 +29,18 @@ def AdaGrad(params, cost, lr=1.0, eps=1e-6, lr_rate=None):
     return lr_m_schedule(updates, lr, None, lr_rate, None)
 
 def Adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8):
-    '''
-    Modified from Newmu gist: 
+    """Adam algorithm proposed was proposed in Adam: A Method for Stochastic 
+    Optimization.
+    This code was modified from Newmu's code:
     https://gist.github.com/Newmu/acb738767acb4788bac3
-    He is under The MIT License
-    '''
+    
+    :param params: list of :class:theano.shared variables to be optimized 
+    :param cost: cost function that should be minimized in the optimization
+    :param float lr: learning rate
+    :param float b1: ToDo: WRITEME 
+    :param float b2: ToDo: WRITEME
+    :param float e: ToDO: WRITEME
+    """
     updates = []
     grads = T.grad(cost, params)
     i = theano.shared(zero)
@@ -111,6 +127,8 @@ def lr_m_schedule(updates, lr, momentum, lr_rate=None, m_rate=None):
 
 
 class Optimizer():
+  """Optim
+  """
   def __init__(self, parameters, cost, method='sgd',input=[], givens=None,
                constant=None,learning_rate=.001, momentum=None,
                lr_rate=None, m_rate=None, extra_updates=[]):
