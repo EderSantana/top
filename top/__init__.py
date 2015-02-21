@@ -58,11 +58,12 @@ def Adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8):
         updates.append((v,v_t))
         updates.append((p,p_t))
     updates.append((i, i_t))
-    return OrderedDict(updates)
+    return updates
 
 def rmsprop(parameters,cost=None,gradients=None,
-        updates=None,lr=2e-2, consider_constant = [], epsilon=1e-8,
-        momentum = None, lr_rate=None, m_rate=None, **kwargs):
+           updates=None,lr=2e-2, consider_constant = [], epsilon=1e-8,
+           momentum = None, lr_rate=None, m_rate=None, 
+           g_clip=None, **kwargs):
 
     rho = .9
 
@@ -74,6 +75,7 @@ def rmsprop(parameters,cost=None,gradients=None,
     if updates==None:
         updates = []
     for param,grad in zip(parameters,grads):
+        #if g_clip is not None:
         scale = my1
         accum  = theano.shared(param.get_value()*0.)
         new_accum = rho * accum + (1 - rho) * grad**2
@@ -123,7 +125,7 @@ def lr_m_schedule(updates, lr, momentum, lr_rate=None, m_rate=None):
     updates.append((lr, ifelse(lr*lr_rate<1e-5,.1e-5,lr*lr_rate))) #T.minimum(lr * lr_rate, 1e-6)
   if m_rate:
     updates.append((momentum, ifelse(momentum*m_rate>.9,.9,momentum*m_rate))) #T.maximum(momentum * m_rate, .99)
-  return OrderedDict(updates)
+  return updates
 
 
 class Optimizer():
@@ -165,6 +167,11 @@ class Optimizer():
       updates = AdaGrad(self.p, self.cost, lr=self.lr, lr_rate=self.lr_rate)
     else:
       raise NotImplementedError("Optimization method not implemented!")
+    
+    if self.extra_updates is not None:
+        updates.append(self.extra_updates)
+    
+    updates = OrderedDict(updates)
 
     if self.input == []:
         self.f = theano.function([], self.cost, updates=updates, givens=self.givens, allow_input_downcast=True)
