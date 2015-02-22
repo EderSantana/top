@@ -13,7 +13,7 @@ install:
 # # I copyed most of this from Theano rep
     - conda create --yes -q -n pyenv mkl python=2.7 numpy scipy theano nose pyparsing pip
     - source activate pyenv
-    - then pip install pydot
+    - pip install pydot
     - pip install . --no-deps --use-mirrors
     - pip install coverage
     - pip install coveralls
