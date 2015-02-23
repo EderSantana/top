@@ -41,6 +41,7 @@ def Adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8):
     :param float b2: ToDo: WRITEME
     :param float e: ToDO: WRITEME
     """
+    zero = np.zeros(1).astype(floatX)[0]
     updates = []
     grads = T.grad(cost, params)
     i = theano.shared(zero)
@@ -99,6 +100,7 @@ def sgd(parameters,cost=None,gradients=None,
         updates=None,lr=None, consider_constant = [],
         momentum = None, lr_rate=None, m_rate=None, **kwargs):
 
+    my1 = T.constant(np.array(1.0,dtype=theano.config.floatX))
     if not isinstance(parameters,list):
         parameters = [parameters]
     if gradients == None:

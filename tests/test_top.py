@@ -20,9 +20,9 @@ def test_rmspro():
   print "Starting at x=5, after 5000 iterations, we found minimum of x**2 at x = %f" % opt.p[0].get_value()
   assert opt.p[0].get_value()<.00001
 
-def test_adam():
+def try_adam():
   '''
-  Finds the root of x**
+  Finds the root of x**2 using Adam. This will be a test in the future
   '''
   x = theano.shared(np.asarray([5.,]).astype(theano.config.floatX))
   cost = T.sqr(x).sum()
