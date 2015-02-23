@@ -14,7 +14,7 @@ def test_rmspro():
   momentum = np.asarray(.1).astype(theano.config.floatX)
   m_rate = np.asarray(1.0001).astype(theano.config.floatX)
    
-  opt = Optimizer(x, cost, method='adam', learning_rate=learning_rate, momentum=momentum,
+  opt = Optimizer(x, cost, method='rmsprop', learning_rate=learning_rate, momentum=momentum,
                   lr_rate=lr_rate,m_rate=m_rate)
   opt.run(5000)
   print "Starting at x=5, after 5000 iterations, we found minimum of x**2 at x = %f" % opt.p[0].get_value()
