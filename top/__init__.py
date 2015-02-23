@@ -85,7 +85,7 @@ def Adam2(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8):
 def rmsprop(parameters,cost=None,gradients=None,
            updates=None,lr=2e-2, consider_constant = [], epsilon=1e-8,
            momentum = None, lr_rate=None, m_rate=None, 
-           g_clip=None, **kwargs):
+           grad_clip=None, **kwargs):
 
     rho = .9
     my1 = T.constant(np.array(1.0,dtype=theano.config.floatX))
@@ -98,24 +98,27 @@ def rmsprop(parameters,cost=None,gradients=None,
     if updates==None:
         updates = []
     for param,grad in zip(parameters,grads):
-        if g_clip is not None:
+        if grad_clip is not None:
             gnorm = T.sqr(grad).sum()
-            grad = ifelse(gnorm>g_clip, g_clip*grad/gnorm, grad)
+            ggrad = T.switch(T.ge(gnorm,grad_clip), 
+                             grad_clip*grad/gnorm, grad)
+        else:
+            ggrad = grad
         scale = my1
         accum  = theano.shared(param.get_value()*0.)
-        new_accum = rho * accum + (1 - rho) * grad**2
+        new_accum = rho * accum + (1 - rho) * ggrad**2
         updates.append((accum, new_accum))
         if 'scale' in kwargs:
             print 'scaling the lr'
             scale = kwargs['scale']
         if momentum != None:
             mparam = theano.shared(param.get_value()*0.)
-            v = momentum * mparam - lr * grad/ T.sqrt(new_accum + epsilon) 
-            w = param + momentum * v - lr * grad/ T.sqrt(new_accum + epsilon)
+            v = momentum * mparam - lr * ggrad/ T.sqrt(new_accum + epsilon) 
+            w = param + momentum * v - lr * ggrad/ T.sqrt(new_accum + epsilon)
             updates.append((mparam, v))
             updates.append((param, w))
         else:
-            updates.append((param, param - scale*lr*grad / T.sqrt(new_accum + epsilon)))
+            updates.append((param, param - scale*lr*ggrad / T.sqrt(new_accum + epsilon)))
 
     return lr_m_schedule(updates, lr, momentum, lr_rate, m_rate)
 
@@ -159,7 +162,7 @@ class Optimizer():
   def __init__(self, parameters, cost, method='sgd',input=[], givens=None,
                constant=None,learning_rate=.001, momentum=None,
                lr_rate=None, m_rate=None, extra_updates=None,
-               g_clip=None):
+               grad_clip=None):
     if not isinstance(parameters,list):
         parameters = [parameters]
     self.p = parameters
@@ -177,7 +180,7 @@ class Optimizer():
     self.givens = givens
     self.cc = constant
     self.extra_updates = extra_updates
-    self.g_clip = g_clip
+    self.grad_clip = grad_clip
 
   def compile(self):
     print "$> Compiling optimizer."
@@ -188,7 +191,7 @@ class Optimizer():
     elif self.method.lower() == 'rmsprop':
       updates = rmsprop(self.p,self.cost, lr=self.lr, momentum=self.m,
                         lr_rate=self.lr_rate, m_rate=self.m_rate, 
-                        consider_constant=self.cc, g_clip=self.g_clip)
+                        consider_constant=self.cc, grad_clip=self.grad_clip)
     elif self.method.lower() == 'adam':
       updates = Adam(self.p, self.cost, lr=self.lr)
     elif self.method.lower() == 'adagrad':
