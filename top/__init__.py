@@ -1,4 +1,4 @@
-__version__='0.1'
+__version__='0.0.1'
 
 import theano
 import theano.tensor as T
@@ -6,10 +6,7 @@ import numpy as np
 from theano.ifelse import ifelse
 from theano.compat.python2x import OrderedDict
 
-my0 = T.constant(np.array(0.0,dtype=theano.config.floatX))
-my1 = T.constant(np.array(1.0,dtype=theano.config.floatX))
 floatX = theano.config.floatX
-zero = np.zeros(1).astype(floatX)[0]
 
 def AdaGrad(params, cost, lr=1.0, eps=1e-6, lr_rate=None):
     """AdaGrad algorithm proposed was proposed in No More Pesky Learning
@@ -21,6 +18,7 @@ def AdaGrad(params, cost, lr=1.0, eps=1e-6, lr_rate=None):
     :param float eps: small constant to avoid division by zero
     :param float lr_rate: learning rate change factor. Ot should be smaller, but close to one
     """
+    zero = np.zeros(1).astype(floatX)[0]
     grads = T.grad(cost, params)
     accum = [theano.shared(param.get_value()*zero) for param in params]
     updates = []
@@ -68,6 +66,7 @@ def rmsprop(parameters,cost=None,gradients=None,
            g_clip=None, **kwargs):
 
     rho = .9
+    my1 = T.constant(np.array(1.0,dtype=theano.config.floatX))
 
     if not isinstance(parameters,list):
         parameters = [parameters]
