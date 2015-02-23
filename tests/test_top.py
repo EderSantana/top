@@ -20,7 +20,7 @@ def test_rmspro():
   print "Starting at x=5, after 5000 iterations, we found minimum of x**2 at x = %f" % opt.p[0].get_value()
   assert opt.p[0].get_value()<.00001
 
-def try_adam():
+def test_adam():
   '''
   Finds the root of x**2 using Adam. This will be a test in the future
   '''
