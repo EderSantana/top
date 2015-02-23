@@ -30,7 +30,7 @@ long_description = read('README.rst')
 
 setuptools.setup(
     name='top',
-    version=find_version('top', '__init__.py'),
+    version= '0.0.1', #find_version('top', '__init__.py'),
     packages=setuptools.find_packages(),
     author='Eder Santana',
     author_email='edercsjr+git@gmail.com',
