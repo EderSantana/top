@@ -8,7 +8,12 @@ top
 Theano, numpy and scipy
 
 #Installation
-Just add the present folder to your PYTHONPATH 'export PYTHONPATH=/this/folder:$PYTHONPATH', or 'run pip install' ./ in this directory.
+Since `top` is under heavy development just add link to this package using either:
+        python setup.py develop
+or simply just add the present folder to your PYTHONPATH 
+        echo 'export PYTHONPATH=$PWD:\$PYTHONPATH' >> ~/.bashrc 
+If you are using OS X add it to ~/.profile, if using a virtualenv you can add it to $ENV/bin/activate. 
+This way when you update this repo from github, you will not need to reinstall.
 
 #How to use
 Define your function with theano. All the variables you want to optimize should be shared variables. This can be usefull, for instance, to allow you to use the full power of your GPU without needing to move your parameters back and forth to your CPU.

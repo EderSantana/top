@@ -77,7 +77,9 @@ def rmsprop(parameters,cost=None,gradients=None,
     if updates==None:
         updates = []
     for param,grad in zip(parameters,grads):
-        #if g_clip is not None:
+        if g_clip is not None:
+            gnorm = T.sqr(grad).sum()
+            grad = ifelse(gnorm>g_clip, g_clip*grad/gnorm, grad)
         scale = my1
         accum  = theano.shared(param.get_value()*0.)
         new_accum = rho * accum + (1 - rho) * grad**2
@@ -130,13 +132,13 @@ def lr_m_schedule(updates, lr, momentum, lr_rate=None, m_rate=None):
     updates.append((momentum, ifelse(momentum*m_rate>.9,.9,momentum*m_rate))) #T.maximum(momentum * m_rate, .99)
   return updates
 
-
 class Optimizer():
   """Optim
   """
   def __init__(self, parameters, cost, method='sgd',input=[], givens=None,
                constant=None,learning_rate=.001, momentum=None,
-               lr_rate=None, m_rate=None, extra_updates=None):
+               lr_rate=None, m_rate=None, extra_updates=None,
+               g_clip=None):
     if not isinstance(parameters,list):
         parameters = [parameters]
     self.p = parameters
@@ -154,6 +156,7 @@ class Optimizer():
     self.givens = givens
     self.cc = constant
     self.extra_updates = extra_updates
+    self.g_clip = g_clip
 
   def compile(self):
     print "$> Compiling optimizer."
@@ -163,7 +166,8 @@ class Optimizer():
                    lr_rate=self.lr_rate, m_rate=self.m_rate, consider_cosntant=self.cc)
     elif self.method.lower() == 'rmsprop':
       updates = rmsprop(self.p,self.cost, lr=self.lr, momentum=self.m,
-                        lr_rate=self.lr_rate, m_rate=self.m_rate, consider_constant=self.cc)
+                        lr_rate=self.lr_rate, m_rate=self.m_rate, 
+                        consider_constant=self.cc, g_clip=self.g_clip)
     elif self.method.lower() == 'adam':
       updates = Adam(self.p, self.cost, lr=self.lr)
     elif self.method.lower() == 'adagrad':
