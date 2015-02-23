@@ -1,3 +1,7 @@
+top
+======
+[![Build Status](https://travis-ci.org/EderSantana/top.svg?branch=master)](https://travis-ci.org/EderSantana/top)
+
 `top` is a lighweight Theano based optimization module. Right now we have only stochastic gradient descent (SGD) and RMSprop, AdaGrad and Adam but you can do wonders with those.
 
 #Prereqs

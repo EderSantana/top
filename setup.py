@@ -3,6 +3,7 @@ import setuptools
 from setuptools.command.test import test as TestCommand
 import codecs
 import re
+import sys
 
 here = os.path.abspath(os.path.dirname(__file__))
 def read(*parts):
