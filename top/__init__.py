@@ -18,7 +18,7 @@ def Adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8, grad_clip=None):
     lr_t = lr * (T.sqrt(fix2) / fix1)
     for p, g in zip(params, grads):
         if grad_clip is not None:
-            gnorm = T.sqr(g).sum()
+            gnorm = T.sqrt(T.sqr(g).sum())
             ggrad = T.switch(T.ge(gnorm,grad_clip), 
                              grad_clip*g/gnorm, g)
         else:
@@ -105,7 +105,7 @@ def rmsprop(parameters,cost=None,gradients=None,
         updates = []
     for param,grad in zip(parameters,grads):
         if grad_clip is not None:
-            gnorm = T.sqr(grad).sum()
+            gnorm = T.sqrt(T.sqr(grad).sum())
             ggrad = T.switch(T.ge(gnorm,grad_clip), 
                              grad_clip*grad/gnorm, grad)
         else:
