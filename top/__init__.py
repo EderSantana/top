@@ -7,7 +7,7 @@ from theano.ifelse import ifelse
 from theano.compat.python2x import OrderedDict
 
 floatX = theano.config.floatX
-def Adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8):
+def Adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8, grad_clip=None):
     updates = []
     grads = T.grad(cost, params)
     zero = np.zeros(1).astype(floatX)[0]
@@ -17,10 +17,16 @@ def Adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8):
     fix2 = 1. - (1. - b2)**i_t
     lr_t = lr * (T.sqrt(fix2) / fix1)
     for p, g in zip(params, grads):
+        if grad_clip is not None:
+            gnorm = T.sqr(g).sum()
+            ggrad = T.switch(T.ge(gnorm,grad_clip), 
+                             grad_clip*g/gnorm, g)
+        else:
+            ggrad = g
         m = theano.shared(p.get_value() * 0.)
         v = theano.shared(p.get_value() * 0.)
-        m_t = (b1 * g) + ((1. - b1) * m)
-        v_t = (b2 * T.sqr(g)) + ((1. - b2) * v)
+        m_t = (b1 * ggrad) + ((1. - b1) * m)
+        v_t = (b2 * T.sqr(ggrad)) + ((1. - b2) * v)
         g_t = m_t / (T.sqrt(v_t) + e)
         p_t = p - (lr_t * g_t)
         updates.append((m, m_t))
@@ -157,7 +163,7 @@ def lr_m_schedule(updates, lr, momentum, lr_rate=None, m_rate=None):
   return updates
 
 class Optimizer():
-  """Optim
+  """Optimizer API
   """
   def __init__(self, parameters, cost, method='sgd',input=[], givens=None,
                constant=None,learning_rate=.001, momentum=None,
@@ -193,7 +199,7 @@ class Optimizer():
                         lr_rate=self.lr_rate, m_rate=self.m_rate, 
                         consider_constant=self.cc, grad_clip=self.grad_clip)
     elif self.method.lower() == 'adam':
-      updates = Adam(self.p, self.cost, lr=self.lr)
+      updates = Adam(self.p, self.cost, lr=self.lr, grad_clip=self.grad_clip)
     elif self.method.lower() == 'adagrad':
       updates = AdaGrad(self.p, self.cost, lr=self.lr, lr_rate=self.lr_rate)
     else:
