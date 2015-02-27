@@ -7,8 +7,9 @@ from pylearn2.datasets.mnist import MNIST
 from top.dataset_iterator import (Pylearn2DatasetGenerator,
                                   Pylearn2OldGenerator,
                                   NumpyDatasetGenerator)
+import itertools
 
-def test_pylearn2_old_generator():
+def try_pylearn2_old_generator():
     dataset = MNIST('train')
     dataset_generator = Pylearn2OldGenerator(
                             dataset,
@@ -19,7 +20,7 @@ def test_pylearn2_old_generator():
         print b.shape
         assert b.shape == (1000,784)
 
-def test_pylearn2_generator():
+def try_pylearn2_generator():
     dataset = MNIST('train')
     dataset_generator = Pylearn2OldGenerator(
                             dataset,
@@ -42,7 +43,9 @@ def test_numpy_generator():
         assert b[1].shape == (100,1)
 
 def test_top_with_numpy_generator():
+    # Random dataset
     dataset = np.random.normal(0,1,(1000,10))
+    # target = 0 if sum>.5 else 1
     target  = 0. + (np.dot(dataset, np.ones((10,1)))>.5)
     dataset_generator = NumpyDatasetGenerator(
                           dataset=(dataset, target),
@@ -52,8 +55,8 @@ def test_top_with_numpy_generator():
     X, T = tensor.matrices('X', 'Y')
     Y = tensor.nnet.sigmoid(tensor.dot(X,W))
     cost = tensor.nnet.binary_crossentropy(Y, T).mean()
-    opt = top.Optimizer(W, cost, input=[X,T], method='sgd', learning_rate=.01)
-    opt.run_epochs(1000, dataset_generator)
+    opt = top.Optimizer(W, cost, input=[X,T], method='sgd', learning_rate=.005)
+    opt.iterate_epochs(1000, dataset_generator)
     print W.get_value()
 
 if __name__=='__main__':

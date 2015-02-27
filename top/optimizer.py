@@ -1,3 +1,4 @@
+import itertools
 import top
 import theano
 import theano.tensor as T
@@ -77,44 +78,36 @@ class Optimizer():
   def run(self,niter,*args):
     """:run: runs the Optimizer
 
-    There are two ways to use run, one where the extra argumets *args are numpy
-    batches and another where the extra argument is a dataset with an iterator
-    method. In the first case, run will simply pass niter times over those
-    batches.
+    run extra argumets *args are numpy batches
 
-    If the input is a dataset, run will iterate over all the dataset calling its
-    iterate method. For each batch, niter is again the number of passes over a
-    given batch.
+    If the input is a dataset, use Optimizer.iterate.
 
     :param niter integer: number of passes over a given batch
     """
     total = 0.
     if not hasattr(self,'f'):
-      self.compile()
-
-    # check if there is any extra input
-    if len(args)>0:
-        # check if input is an iterator and deal with it
-        if hasattr(args[0], '__iter__'):
-            for b in args[0]:
-                if not isinstance(b, tuple):
-                    b = tuple(b)
-                for k in range(niter):
-                    total += self.f(*b)
-        # if it is not an interator, trust the user
-        else:
-            for k in range(niter):
-                total += self.f(*args)
-    # if no input, simply the function and accumulate the output
-    else:
-        for k in range(niter):
-            total += self.f()
+        self.compile()
+    for k in range(niter):
+        total += self.f(*args)
 
     return self, total
 
-  def run_epochs(self, nepochs, *args):
+  def iterate(self, dataset):
+      '''
+      Similar to 'run' method but this method expects a datset as input
+      '''
+      if not hasattr(self,'f'):
+          self.compile()
       total = 0.
+      for N,b in enumerate(dataset):
+          if not isinstance(b, tuple):
+              b = tuple(b)
+          total += self.f(*b)
+      return total/N
+
+  def iterate_epochs(self, nepochs, dataset):
+      total = np.zeros(nepochs)
       for k in range(nepochs):
-          _, t = self.run(1, *args)
-          total += t
+          data_copy,dataset = itertools.tee(dataset)
+          total[k] = self.iterate(data_copy)
       return total
