@@ -5,8 +5,8 @@ import theano.tensor as T
 import numpy as np
 from theano.ifelse import ifelse
 from theano.compat.python2x import OrderedDict
-from .optimizer import Optimizer
-from . import update_rules as up
+from top.optimizer import Optimizer
+from top import update_rules as up
 
 '''
   TODO maybe? Add validate_n_save method
