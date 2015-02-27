@@ -11,12 +11,12 @@ before_install:
    - conda update --yes conda
    - git clone https://github.com/lisa-lab/pylearn2.git
    - export PYTHONPATH=$PWD/pylearn2
-   - export PYLEARN2_DATA_PATH=$PWD
-   - python pylearn2/scripts/datasets/download_mnist.py
+   - export PYLEARN2_DATA_PATH=$PWD   
 install:
 # # I copyed most of this from Theano rep
     - conda create --yes -q -n pyenv mkl python=2.7 numpy scipy theano nose pyparsing pip
     - source activate pyenv
+    - python pylearn2/scripts/datasets/download_mnist.py
     - pip install pydot
     - pip install . --no-deps --use-mirrors
     - pip install coverage
