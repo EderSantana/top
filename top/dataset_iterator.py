@@ -1,7 +1,16 @@
+"""
+top.Optimizer accepts a generator as input to its run method. Here are some
+examples of how to create generators to wrap datasets.
+"""
+
 import numpy as np
 
 class Pylearn2DatasetIterator:
     """
+    This iterator uses the new pylearn2 dataset.iterator interface
+
+    Parameters
+    ----------
     :param which_batches list: filter out batches from the pylearn2
         iterator, if this is equal to -1, it will keep all the batches.
     :param mode string: one of the original pylearn2 sequence modes like
@@ -32,6 +41,9 @@ def Pylearn2OldGenerator(dataset,
                              batch_size,
                              mode='shuffled_sequential',
                              num_batches=-1):
+    """
+    This generator uses the old pylearn2 dataset.iterator interface
+    """
     if num_batches == -1:
         num_batches = dataset.get_num_examples()/batch_size
     for b in dataset.iterator(
@@ -45,6 +57,16 @@ def Pylearn2DatasetGenerator(dataset,
                              which_batches=range(0,1),
                              mode='shuffled_sequential',
                              num_batches=-1):
+    """
+    This generator uses the new pylearn2 dataset.iterator interface
+
+    Parameters
+    ----------
+    :param which_batches list: filter out batches from the pylearn2
+        iterator, if this is equal to -1, it will keep all the batches.
+    :param mode string: one of the original pylearn2 sequence modes like
+        'sequential', 'shuffled_sequential', or a SubsetIterator object.
+    """
 
     for b in dataset.iterator(
                    batch_size,
@@ -55,3 +77,30 @@ def Pylearn2DatasetGenerator(dataset,
              ):
         b = [b[i] for i in which_batches]
         yield b
+
+def NumpyDatasetGenerator(dataset,
+                          batch_size,
+                          shuffle=True,
+                          num_batches=-1):
+    """
+    Feeds Numpy tensor batches.
+
+    Parameters
+    ----------
+    :param shuffle bool: Shuffles the batches (axis=0) before starting the
+                         generator.
+    """
+    # top.Optimizer is expecting for tuples
+    if isinstance(dataset, tuple):
+        dataset = tuple(dataset)
+
+    if shuffle==True:
+        perm = np.random.permutation(dataset[0].shape[0])
+        dataset = [d[perm] for d in dataset]
+    if num_batches == -1:
+        num_batches = dataset[0].shape[0]/batch_size
+    for i in range(num_batches):
+        start  = i*batch_size
+        finish = (i+1)*batch_size
+        batch = [d[start:finish] for d in dataset]
+        yield tuple(batch)

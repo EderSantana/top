@@ -91,15 +91,30 @@ class Optimizer():
     total = 0.
     if not hasattr(self,'f'):
       self.compile()
+
+    # check if there is any extra input
     if len(args)>0:
-        if hasattr(args[0], 'next'):
+        # check if input is an iterator and deal with it
+        if hasattr(args[0], '__iter__'):
             for b in args[0]:
                 if not isinstance(b, tuple):
                     b = tuple(b)
-                total += self.f(*b)
+                for k in range(niter):
+                    total += self.f(*b)
+        # if it is not an interator, trust the user
         else:
-            total += self.f(*args)
+            for k in range(niter):
+                total += self.f(*args)
+    # if no input, simply the function and accumulate the output
     else:
         for k in range(niter):
             total += self.f()
+
     return self, total
+
+  def run_epochs(self, nepochs, *args):
+      total = 0.
+      for k in range(nepochs):
+          _, t = self.run(1, *args)
+          total += t
+      return total
