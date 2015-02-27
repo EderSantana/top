@@ -86,18 +86,20 @@ class Optimizer():
     iterate method. For each batch, niter is again the number of passes over a
     given batch.
 
-    :niter integer: number of passes over a given batch
+    :param niter integer: number of passes over a given batch
     """
     total = 0.
     if not hasattr(self,'f'):
       self.compile()
     if len(args)>0:
-        if hasattr(args[0], 'iterate'):
-            for b in dataset.iterate():
+        if hasattr(args[0], 'next'):
+            for b in args[0]:
                 if not isinstance(b, tuple):
                     b = tuple(b)
                 total += self.f(*b)
+        else:
+            total += self.f(*args)
     else:
         for k in range(niter):
-            total += self.f(*args)
+            total += self.f()
     return self, total
