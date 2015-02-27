@@ -43,10 +43,10 @@ class Optimizer():
                                  consider_constant=self.cc,
                                  grad_clip=self.grad_clip)
     elif self.method.lower() == 'adam':
-        updates = top.up.Adam(self.p, self.cost, lr=self.lr,
+        updates = top.up.adam(self.p, self.cost, lr=self.lr,
                               grad_clip=self.grad_clip)
     elif self.method.lower() == 'adagrad':
-        updates = top.up.AdaGrad(self.p, self.cost,
+        updates = top.up.adagrad(self.p, self.cost,
                                  lr=self.lr, lr_rate=self.lr_rate)
     else:
         raise NotImplementedError("Optimization method not implemented!")
@@ -75,11 +75,28 @@ class Optimizer():
     return self
 
   def run(self,niter,*args):
+    """:run: runs the Optimizer
+
+    There are two ways to use run, one where the extra argumets *args are numpy
+    batches and another where the extra argument is a dataset with an iterator
+    method. In the first case, run will simply pass niter times over those
+    batches.
+
+    If the input is a dataset, run will iterate over all the dataset calling its
+    iterate method. For each batch, niter is again the number of passes over a
+    given batch.
+
+    :niter integer: number of passes over a given batch
+    """
     total = 0.
     if not hasattr(self,'f'):
       self.compile()
-    if hasattr(*args, iterate):
-        pass
+    if len(args)>0:
+        if hasattr(args[0], 'iterate'):
+            for b in dataset.iterate():
+                if not isinstance(b, tuple):
+                    b = tuple(b)
+                total += self.f(*b)
     else:
         for k in range(niter):
             total += self.f(*args)

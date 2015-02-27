@@ -4,7 +4,7 @@ import numpy as np
 from theano.ifelse import ifelse
 
 floatX = theano.config.floatX
-def Adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8, grad_clip=None):
+def adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8, grad_clip=None):
     updates = []
     grads = T.grad(cost, params)
     zero = np.zeros(1).astype(floatX)[0]
@@ -32,7 +32,7 @@ def Adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8, grad_clip=None):
     updates.append((i, i_t))
     return updates
 
-def AdaGrad(params, cost, lr=1.0, eps=1e-6, lr_rate=None):
+def adagrad(params, cost, lr=1.0, eps=1e-6, lr_rate=None):
     """AdaGrad algorithm proposed was proposed in No More Pesky Learning
     Rates by Schaul et. al.
 
@@ -50,7 +50,7 @@ def AdaGrad(params, cost, lr=1.0, eps=1e-6, lr_rate=None):
         a_i = a + g**2
         updates.append((a, a_i))
         updates.append((p, p - lr * g / T.sqrt(a_i + eps)))
-    return lr_m_schedule(updates, lr, None, lr_rate, None)
+    return _lr_m_schedule(updates, lr, None, lr_rate, None)
 
 def Adam2(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8):
     """Adam algorithm proposed was proposed in Adam: A Method for Stochastic
@@ -123,7 +123,7 @@ def rmsprop(parameters,cost=None,gradients=None,
         else:
             updates.append((param, param - scale*lr*ggrad / T.sqrt(new_accum + epsilon)))
 
-    return lr_m_schedule(updates, lr, momentum, lr_rate, m_rate)
+    return _lr_m_schedule(updates, lr, momentum, lr_rate, m_rate)
 
 def sgd(parameters,cost=None,gradients=None,
         updates=None,lr=None, consider_constant = [],
@@ -150,9 +150,9 @@ def sgd(parameters,cost=None,gradients=None,
         else:
             updates.append((param, param - scale * lr * grad))
 
-    return lr_m_schedule(updates, lr, momentum, lr_rate, m_rate)
+    return _lr_m_schedule(updates, lr, momentum, lr_rate, m_rate)
 
-def lr_m_schedule(updates, lr, momentum, lr_rate=None, m_rate=None):
+def _lr_m_schedule(updates, lr, momentum, lr_rate=None, m_rate=None):
   if lr_rate:
     updates.append((lr, ifelse(lr*lr_rate<1e-5,.1e-5,lr*lr_rate))) #T.minimum(lr * lr_rate, 1e-6)
   if m_rate:
