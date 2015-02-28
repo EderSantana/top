@@ -4,6 +4,16 @@ import theano
 import theano.tensor as T
 import numpy as np
 from theano.compat.python2x import OrderedDict
+import matplotlib.pyplot as plt
+import time
+bokeh = None
+try:
+    import bokeh
+    import bokeh.plotting as bplt
+    bplt.output_notebook(url="default")
+except:
+    import warnings
+    warnings.warn('Bokeh not available, we may have touse matplotlib for plotting. This may not be the best idea, please try to `pip install bokeh` instead.')
 
 class Optimizer():
   """Optimizer API
@@ -11,7 +21,8 @@ class Optimizer():
   def __init__(self, parameters, cost, method='sgd',input=[], givens=None,
                constant=None,learning_rate=.001, momentum=None,
                lr_rate=None, m_rate=None, extra_updates=None,
-               grad_clip=None):
+               grad_clip=None, ipython_display=None):
+
     if not isinstance(parameters,list):
         parameters = [parameters]
     self.p = parameters
@@ -30,6 +41,7 @@ class Optimizer():
     self.cc = constant
     self.extra_updates = extra_updates
     self.grad_clip = grad_clip
+    self.ipython_display = ipython_display # image logging of cost function
 
   def compile(self):
     print "$> Compiling optimizer."
@@ -106,8 +118,33 @@ class Optimizer():
       return total/N
 
   def iterate_epochs(self, nepochs, dataset):
-      total = np.zeros(nepochs)
+      total = [] #np.zeros(nepochs)
       for k in range(nepochs):
           data_copy,dataset = itertools.tee(dataset)
-          total[k] = self.iterate(data_copy)
+          total.append(self.iterate(data_copy))
+          if self.ipython_display is not None:
+              self.image_logging(total)
       return total
+
+  def image_logging(self, total):
+      if bokeh == None:
+          plt.cla()
+          plt.plot(total)
+          self.ipython_display.clear_output(wait=True)
+          self.ipython_display.display(plt.gcf())
+          time.sleep(0.1)
+      else:
+          x = range(len(total))
+
+          if not hasattr(self, 'fig'):
+              self.fig = bplt.figure(title='top.Optimizer')
+              self.fig.line(x, total, legend='cost', x_axis_label='epoch number',
+                            name='top_figure', plot_width=100, plot_height=100)
+              bplt.show(self.fig)
+
+          # Update cost function graph
+          renderer=self.fig.select(dict(name='top_figure'))
+          ds = renderer[0].data_source
+          ds.data['y'] = total
+          ds.data['x'] = x
+          bplt.cursession().store_objects(ds)

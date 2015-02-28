@@ -7,7 +7,6 @@ from pylearn2.datasets.mnist import MNIST
 from top.dataset_iterator import (Pylearn2DatasetGenerator,
                                   Pylearn2OldGenerator,
                                   NumpyDatasetGenerator)
-import itertools
 
 def try_pylearn2_old_generator():
     dataset = MNIST('train')

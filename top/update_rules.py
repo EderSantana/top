@@ -5,6 +5,18 @@ from theano.ifelse import ifelse
 
 floatX = theano.config.floatX
 def adam(params, cost, lr=0.0002, b1=0.1, b2=0.001, e=1e-8, grad_clip=None):
+    """Adam algorithm proposed was proposed in Adam: A Method for Stochastic
+    Optimization.
+    This code was modified from Newmu's (Alec Radford) code:
+    https://gist.github.com/Newmu/acb738767acb4788bac3
+
+    :param params: list of :class:theano.shared variables to be optimized
+    :param cost: cost function that should be minimized in the optimization
+    :param float lr: learning rate
+    :param float b1: ToDo: WRITEME
+    :param float b2: ToDo: WRITEME
+    :param float e: ToDO: WRITEME
+    """
     updates = []
     grads = T.grad(cost, params)
     zero = np.zeros(1).astype(floatX)[0]
