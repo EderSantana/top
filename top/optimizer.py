@@ -10,7 +10,8 @@ bokeh = None
 try:
     import bokeh
     import bokeh.plotting as bplt
-    bplt.output_notebook(url="default")
+    #bplt.output_notebook() #(url="default") prints to local ipython notebook
+    bplt.output_server("top plots") # server online
 except:
     import warnings
     warnings.warn('Bokeh not available, we will use matplotlib for plotting. You may experience flickering images. Try to `pip install bokeh` instead.')
