@@ -13,7 +13,7 @@ try:
     bplt.output_notebook(url="default")
 except:
     import warnings
-    warnings.warn('Bokeh not available, we may have touse matplotlib for plotting. This may not be the best idea, please try to `pip install bokeh` instead.')
+    warnings.warn('Bokeh not available, we will use matplotlib for plotting. You may experience flickering images. Try to `pip install bokeh` instead.')
 
 class Optimizer():
   """Optimizer API
