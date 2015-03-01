@@ -14,7 +14,7 @@ before_install:
    - export PYLEARN2_DATA_PATH=$PWD   
 install:
 # # I copyed most of this from Theano rep
-    - conda create --yes -q -n pyenv mkl python=2.7 numpy scipy theano nose pyparsing pip
+    - conda create --yes -q -n pyenv mkl python=2.7 numpy scipy theano matplotlib nose pyparsing pip
     - source activate pyenv
     - pip install pydot
     - pip install . --no-deps --use-mirrors
