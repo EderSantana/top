@@ -33,11 +33,12 @@ def try_pylearn2_generator():
 def test_numpy_generator():
     dataset = np.random.normal(0,1,(1000,10))
     target  = 0. + (np.dot(dataset, np.ones((10,1)))>.5)
-    dataset_generator = NumpyDatasetGenerator(
+    def dataset_generator():
+        return NumpyDatasetGenerator(
                           dataset=(dataset, target),
                           batch_size=100
                           )
-    for b in dataset_generator:
+    for b in dataset_generator():
         assert b[0].shape == (100,10)
         assert b[1].shape == (100,1)
 
@@ -46,7 +47,8 @@ def test_top_with_numpy_generator():
     dataset = np.random.normal(0,1,(1000,10))
     # target = 0 if sum>.5 else 1
     target  = 0. + (np.dot(dataset, np.ones((10,1)))>.5)
-    dataset_generator = NumpyDatasetGenerator(
+    def dataset_generator():
+        return NumpyDatasetGenerator(
                           dataset=(dataset, target),
                           batch_size=100
                           )

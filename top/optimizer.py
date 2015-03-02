@@ -119,8 +119,8 @@ class Optimizer():
           self.compile()
       total = 0.
       N = 0.
-      dataset, data_copy = itertools.tee(dataset)
-      for b in data_copy:
+      #dataset, data_copy = itertools.tee(dataset)
+      for b in dataset():
           if not isinstance(b, tuple):
               b = tuple(b)
           total += self.f(*b)
@@ -135,8 +135,8 @@ class Optimizer():
           self.compile()
       testtotal = 0.
       N = 0.
-      testset, data_copy = itertools.tee(testset)
-      for b in data_copy:
+      #testset, data_copy = itertools.tee(testset)
+      for b in testset():
           if not isinstance(b, tuple):
               b = tuple(b)
           testtotal += self.g(*b)
@@ -146,8 +146,8 @@ class Optimizer():
   def iterate_epochs(self, nepochs, dataset):
       total = [] #np.zeros(nepochs)
       for k in range(nepochs):
-          data_copy,dataset = itertools.tee(dataset)
-          total.append(self.iterate( data_copy ))
+          #data_copy,dataset = itertools.tee(dataset)
+          total.append(self.iterate( dataset ))
           #if self.ipython_display is not None:
           #  self.image_logging(total)
           if self.bokeh_server is not None:
@@ -161,17 +161,21 @@ class Optimizer():
       validtotal = []
       for k in range(nepochs):
           if k % save_every == 0:
-              self.valid_save(validtotal, validset, what_to_save, where_to_save)
+              validtotal = self.valid_save(validtotal,
+                                 validset, what_to_save, where_to_save)
+
+
           self.iterate_epochs(1, trainset)
 
   def valid_save(self, validtotal, validset, what_to_save, where_to_save):
 
-      data_copy, validset = itertools.tee(validset)
-      validtotal.append( self.testiterate( data_copy ) )
+      #validset, data_copy = itertools.tee(validset)
+      validtotal.append( self.testiterate( validset ) )
       if validtotal[-1] == np.min(validtotal):
           # log saving best model
           print "Saving model with validation cost %f" % validtotal[-1]
           cPickle.dump(what_to_save, file(where_to_save, 'w'), -1)
+      return validtotal
 
   def image_logging(self, total):
       if self.ipython_display is not None:
