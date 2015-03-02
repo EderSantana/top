@@ -158,7 +158,7 @@ class Optimizer():
       for k in range(nepochs):
           if k % save_every == 0:
               self.valid_save(validtotal, validset, what_to_save, where_to_save)
-              self.iterate_epochs(save_every, trainset)
+          self.iterate_epochs(1, trainset)
 
   def valid_save(self, validtotal, validset, what_to_save, where_to_save):
 
@@ -189,7 +189,7 @@ class Optimizer():
           # Update cost function graph
           renderer=self.fig.select(dict(name='top_figure'))
           ds = renderer[0].data_source
-          ds.data['y'] = total
-          ds.data['x'] = x
+          ds.data['y'].append(total[-1])
+          ds.data['x'].append(ds.data['x'][-1] + 1)
           bplt.cursession().store_objects(ds)
-          ds.push_notebook()
+          #ds.push_notebook()
