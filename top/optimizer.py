@@ -121,7 +121,7 @@ class Optimizer():
           total += self.f(*b)
       return total/N
 
-  def testdataset(self, testset):
+  def testiterate(self, testset):
       '''
       Similar to iterate but does not update parameters
       '''
@@ -157,7 +157,7 @@ class Optimizer():
 
   def valid_save(self, validtotal, validset, what_to_save, where_to_save):
 
-      validtotal.append( testdataset( validset ) )
+      validtotal.append( self.testiterate( validset ) )
       if validtotal[-1] == np.min(validtotal):
           # log saving best model
           print "Saving model with validation cost %f" % validtotal[-1]
