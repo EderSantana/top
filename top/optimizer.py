@@ -121,6 +121,19 @@ class Optimizer():
           total += self.f(*b)
       return total/N
 
+  def testdataset(self, testset):
+      '''
+      Similar to iterate but does not update parameters
+      '''
+      if not hasattr(self, 'g'):
+          self.compile()
+      testtotal = 0.
+      for N,b in enumerate(dataset):
+          if not isinstance(b, tuple):
+              b = tuple(b)
+          testtotal += self.g(*b)
+      return testtotal/N
+
   def iterate_epochs(self, nepochs, dataset):
       total = [] #np.zeros(nepochs)
       for k in range(nepochs):
@@ -133,7 +146,22 @@ class Optimizer():
 
       return total
 
-  #def
+  def train_valid_save(nepochs, trainset, validset, what_to_save, where_to_save,
+                       save_every=1):
+      total = []
+      validtotal = []
+      for k in range(nepochs):
+          if k % save_every == 0:
+              self.valid_save(validtotal, validset, what_to_save, where_to_save)
+              self.iterate_epochs(save_every, trainset)
+
+  def valid_save(validtotal, validset, what_to_save, where_to_save):
+
+      validtotal.append( testdataset( validset ) )
+      if validtotal[-1] == np.min(validtotal):
+          # log saving best model
+          print "Saving model with validation cost %f" % validtotal[-1]
+          cPickle.dump(what_to_save, file(where_to_save, 'w'), -1)
 
   def image_logging(self, total):
       if self.ipython_display is not None:
