@@ -112,11 +112,12 @@ class Optimizer():
       '''
       Similar to 'run' method but this method expects a datset as input
       '''
+      data_copy, dataset = itertools.tee(dataset)
       if not hasattr(self,'f'):
           self.compile()
       total = 0.
       N = 0.
-      for b in dataset:
+      for b in datacopy:
           if not isinstance(b, tuple):
               b = tuple(b)
           total += self.f(*b)
@@ -131,7 +132,8 @@ class Optimizer():
           self.compile()
       testtotal = 0.
       N = 0.
-      for b in testset:
+      data_copy, testset = itertools.tee(testset)
+      for b in data_copy:
           if not isinstance(b, tuple):
               b = tuple(b)
           testtotal += self.g(*b)
@@ -141,8 +143,8 @@ class Optimizer():
   def iterate_epochs(self, nepochs, dataset):
       total = [] #np.zeros(nepochs)
       for k in range(nepochs):
-          data_copy,dataset = itertools.tee(dataset)
-          total.append(self.iterate(data_copy))
+          #data_copy,dataset = itertools.tee(dataset)
+          total.append(self.iterate( dataset ))
           #if self.ipython_display is not None:
           #  self.image_logging(total)
           if self.bokeh_server is not None:
