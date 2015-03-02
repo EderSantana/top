@@ -192,4 +192,4 @@ class Optimizer():
           ds.data['y'] = total
           ds.data['x'] = x
           bplt.cursession().store_objects(ds)
-          bplt.push_notebook()
+          ds.push_notebook()
