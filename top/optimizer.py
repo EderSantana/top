@@ -133,7 +133,7 @@ class Optimizer():
 
       return total
 
-  def
+  #def
 
   def image_logging(self, total):
       if self.ipython_display is not None:
