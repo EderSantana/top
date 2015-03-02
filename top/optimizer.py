@@ -119,7 +119,7 @@ class Optimizer():
           self.compile()
       total = 0.
       N = 0.
-      data_copy, dataset = itertools.tee(dataset)
+      dataset, data_copy = itertools.tee(dataset)
       for b in data_copy:
           if not isinstance(b, tuple):
               b = tuple(b)
@@ -135,8 +135,8 @@ class Optimizer():
           self.compile()
       testtotal = 0.
       N = 0.
-      data_copy, testset = itertools.tee(testset)
-      for b in testset:
+      testset, data_copy = itertools.tee(testset)
+      for b in data_copy:
           if not isinstance(b, tuple):
               b = tuple(b)
           testtotal += self.g(*b)
