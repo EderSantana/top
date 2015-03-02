@@ -116,7 +116,7 @@ class Optimizer():
           self.compile()
       total = 0.
       N = 0.
-      for b dataset:
+      for b in dataset:
           if not isinstance(b, tuple):
               b = tuple(b)
           total += self.f(*b)
@@ -131,7 +131,7 @@ class Optimizer():
           self.compile()
       testtotal = 0.
       N = 0.
-      for N in testset:
+      for b in testset:
           if not isinstance(b, tuple):
               b = tuple(b)
           testtotal += self.g(*b)
