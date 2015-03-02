@@ -115,10 +115,12 @@ class Optimizer():
       if not hasattr(self,'f'):
           self.compile()
       total = 0.
-      for N,b in enumerate(dataset):
+      N = 0.
+      for b dataset:
           if not isinstance(b, tuple):
               b = tuple(b)
           total += self.f(*b)
+          N = N+1.
       return total/N
 
   def testiterate(self, testset):
@@ -128,10 +130,12 @@ class Optimizer():
       if not hasattr(self, 'g'):
           self.compile()
       testtotal = 0.
-      for N,b in enumerate(testset):
+      N = 0.
+      for N in testset:
           if not isinstance(b, tuple):
               b = tuple(b)
           testtotal += self.g(*b)
+          N += 1.
       return testtotal/N
 
   def iterate_epochs(self, nepochs, dataset):
