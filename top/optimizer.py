@@ -128,7 +128,7 @@ class Optimizer():
       if not hasattr(self, 'g'):
           self.compile()
       testtotal = 0.
-      for N,b in enumerate(dataset):
+      for N,b in enumerate(testset):
           if not isinstance(b, tuple):
               b = tuple(b)
           testtotal += self.g(*b)
