@@ -108,7 +108,8 @@ def GeneratorWithNoise(dataset,
         b = [b[i] for i in which_batches]
         t, bsize, dim = b[0].shape # time length, batch size, dim
         eps = np.random.normal(0,1,size=(t, bsize, noise_size))
-        yield b.append(eps)
+        b.append(eps)
+        yield b
 
 def NumpyDatasetGenerator(dataset,
                           batch_size,
