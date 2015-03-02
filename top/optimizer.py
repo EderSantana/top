@@ -116,8 +116,7 @@ class Optimizer():
           self.compile()
       total = 0.
       N = 0.
-      data_copy, dataset = itertools.tee(dataset)
-      for b in data_copy:
+      for b in dataset:
           if not isinstance(b, tuple):
               b = tuple(b)
           total += self.f(*b)
@@ -132,7 +131,6 @@ class Optimizer():
           self.compile()
       testtotal = 0.
       N = 0.
-      #data_copy, testset = itertools.tee(testset)
       for b in testset:
           if not isinstance(b, tuple):
               b = tuple(b)
@@ -163,7 +161,8 @@ class Optimizer():
 
   def valid_save(self, validtotal, validset, what_to_save, where_to_save):
 
-      validtotal.append( self.testiterate( validset ) )
+      data_copy, validset = itertools.tee(validset)
+      validtotal.append( self.testiterate( data_copy ) )
       if validtotal[-1] == np.min(validtotal):
           # log saving best model
           print "Saving model with validation cost %f" % validtotal[-1]
