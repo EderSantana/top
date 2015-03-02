@@ -146,7 +146,7 @@ class Optimizer():
 
       return total
 
-  def train_valid_save(nepochs, trainset, validset, what_to_save, where_to_save,
+  def train_valid_save(self, nepochs, trainset, validset, what_to_save, where_to_save,
                        save_every=1):
       total = []
       validtotal = []
