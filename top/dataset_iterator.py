@@ -78,6 +78,37 @@ def Pylearn2DatasetGenerator(dataset,
         b = [b[i] for i in which_batches]
         yield b
 
+def GeneratorWithNoise(dataset,
+                       batch_size,
+                       noise_size,
+                       which_batches=range(0,1),
+                       mode='shuffled_sequential',
+                       num_batches=-1):
+    """
+    This generator uses the new pylearn2 dataset.iterator interface.
+    It also outputs some extra noisy values. Someties generating
+    the noise using theano.rng is slower than transfering the data
+    to the GPU. This happend to me, I don't know why.
+
+    Parameters
+    ----------
+    :param which_batches list: filter out batches from the pylearn2
+        iterator, if this is equal to -1, it will keep all the batches.
+    :param mode string: one of the original pylearn2 sequence modes like
+        'sequential', 'shuffled_sequential', or a SubsetIterator object.
+    """
+
+    for b in dataset.iterator(
+                   batch_size,
+                   dataset.get_num_examples()/batch_size,
+                   mode=mode,
+                   data_specs=dataset.get_data_specs(),
+                   return_tuple=True
+             ):
+        b = [b[i] for i in which_batches]
+        eps = np.random.normal(0,1,noise_size)
+        yield b.append(eps)
+
 def NumpyDatasetGenerator(dataset,
                           batch_size,
                           shuffle=True,

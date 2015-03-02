@@ -5,14 +5,15 @@ top
 `top` is a lighweight Theano based optimization module. Right now we have only stochastic gradient descent (SGD) and RMSprop, AdaGrad and Adam but you can do wonders with those.
 
 #Prereqs
-Theano, numpy and scipy
+Theano, numpy and scipy for main functions.  
+Bokeh and matplotlib for plotting.
 
 #Installation
 Since `top` is under heavy development just add link to this package using either:
         python setup.py develop
-or simply just add the present folder to your PYTHONPATH 
-        echo 'export PYTHONPATH=$PWD:\$PYTHONPATH' >> ~/.bashrc 
-If you are using OS X add it to ~/.profile, if using a virtualenv you can add it to $ENV/bin/activate. 
+or simply just add the present folder to your PYTHONPATH
+        echo 'export PYTHONPATH=$PWD:\$PYTHONPATH' >> ~/.bashrc
+If you are using OS X add it to ~/.profile, if using a virtualenv you can add it to $ENV/bin/activate.
 This way when you update this repo from github, you will not need to reinstall.
 
 #How to use
