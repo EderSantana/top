@@ -112,12 +112,12 @@ class Optimizer():
       '''
       Similar to 'run' method but this method expects a datset as input
       '''
-      data_copy, dataset = itertools.tee(dataset)
       if not hasattr(self,'f'):
           self.compile()
       total = 0.
       N = 0.
-      for b in datacopy:
+      data_copy, dataset = itertools.tee(dataset)
+      for b in data_copy:
           if not isinstance(b, tuple):
               b = tuple(b)
           total += self.f(*b)
