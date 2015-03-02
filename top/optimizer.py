@@ -7,6 +7,8 @@ import numpy as np
 from theano.compat.python2x import OrderedDict
 import matplotlib.pyplot as plt
 import time
+from copy import copy
+
 bokeh = None
 try:
     import bokeh
@@ -117,7 +119,8 @@ class Optimizer():
           self.compile()
       total = 0.
       N = 0.
-      for b in dataset:
+      data_copy, dataset = itertools.tee(dataset)
+      for b in data_copy:
           if not isinstance(b, tuple):
               b = tuple(b)
           total += self.f(*b)
@@ -132,6 +135,7 @@ class Optimizer():
           self.compile()
       testtotal = 0.
       N = 0.
+      data_copy, testset = itertools.tee(testset)
       for b in testset:
           if not isinstance(b, tuple):
               b = tuple(b)
