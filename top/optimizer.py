@@ -132,8 +132,8 @@ class Optimizer():
           self.compile()
       testtotal = 0.
       N = 0.
-      data_copy, testset = itertools.tee(testset)
-      for b in data_copy:
+      #data_copy, testset = itertools.tee(testset)
+      for b in testset:
           if not isinstance(b, tuple):
               b = tuple(b)
           testtotal += self.g(*b)
@@ -143,8 +143,8 @@ class Optimizer():
   def iterate_epochs(self, nepochs, dataset):
       total = [] #np.zeros(nepochs)
       for k in range(nepochs):
-          #data_copy,dataset = itertools.tee(dataset)
-          total.append(self.iterate( dataset ))
+          data_copy,dataset = itertools.tee(dataset)
+          total.append(self.iterate( data_copy ))
           #if self.ipython_display is not None:
           #  self.image_logging(total)
           if self.bokeh_server is not None:
