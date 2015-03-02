@@ -155,7 +155,7 @@ class Optimizer():
               self.valid_save(validtotal, validset, what_to_save, where_to_save)
               self.iterate_epochs(save_every, trainset)
 
-  def valid_save(validtotal, validset, what_to_save, where_to_save):
+  def valid_save(self, validtotal, validset, what_to_save, where_to_save):
 
       validtotal.append( testdataset( validset ) )
       if validtotal[-1] == np.min(validtotal):
