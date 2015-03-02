@@ -10,11 +10,10 @@ bokeh = None
 try:
     import bokeh
     import bokeh.plotting as bplt
-    #bplt.output_notebook() #(url="default") prints to local ipython notebook
-    bplt.output_server("top plots") # server online
 except:
     import warnings
-    warnings.warn('Bokeh not available, we will use matplotlib for plotting. You may experience flickering images. Try to `pip install bokeh` instead.')
+    warnings.warn('Problem loading Bokeh, we can only use matplotlib for plotting.')
+    bokeh=None
 
 class Optimizer():
   """Optimizer API
@@ -22,7 +21,7 @@ class Optimizer():
   def __init__(self, parameters, cost, method='sgd',input=[], givens=None,
                constant=None,learning_rate=.001, momentum=None,
                lr_rate=None, m_rate=None, extra_updates=None,
-               grad_clip=None, ipython_display=None):
+               grad_clip=None, ipython_display=None, bokeh_server=None):
 
     if not isinstance(parameters,list):
         parameters = [parameters]
@@ -43,6 +42,10 @@ class Optimizer():
     self.extra_updates = extra_updates
     self.grad_clip = grad_clip
     self.ipython_display = ipython_display # image logging of cost function
+
+    self.bokeh_server = bokeh_server
+    if bokeh_server is not None:
+        bplt.output_notebook(url=bokeh_server)
 
   def compile(self):
     print "$> Compiling optimizer."
@@ -123,18 +126,24 @@ class Optimizer():
       for k in range(nepochs):
           data_copy,dataset = itertools.tee(dataset)
           total.append(self.iterate(data_copy))
-          if self.ipython_display is not None:
+          #if self.ipython_display is not None:
+          #  self.image_logging(total)
+          if self.bokeh_server is not None:
               self.image_logging(total)
+
       return total
 
+  def
+
   def image_logging(self, total):
-      if bokeh == None:
+      if self.ipython_display is not None:
           plt.cla()
           plt.plot(total)
           self.ipython_display.clear_output(wait=True)
           self.ipython_display.display(plt.gcf())
           time.sleep(0.1)
-      else:
+
+      if self.bokeh_server is not None:
           x = range(len(total))
 
           if not hasattr(self, 'fig'):
@@ -149,3 +158,4 @@ class Optimizer():
           ds.data['y'] = total
           ds.data['x'] = x
           bplt.cursession().store_objects(ds)
+          bplt.push_notebook()
