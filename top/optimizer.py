@@ -71,10 +71,9 @@ class Optimizer():
     else:
         raise NotImplementedError("Optimization method not implemented!")
 
-    if self.extra_updates is not None:
-        updates.append(self.extra_updates)
-
     updates = OrderedDict(updates)
+    if self.extra_updates is not None:
+        updates.update(self.extra_updates)
 
     # This may seem weird, but I was getting bugs without this if-else
     if self.input == []:
