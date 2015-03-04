@@ -144,10 +144,11 @@ class Optimizer():
       total = [] #np.zeros(nepochs)
       for k in range(nepochs):
           total.append(self.iterate( dataset ))
-          #if self.ipython_display is not None:
-          #  self.image_logging(total)
+
           if self.bokeh_server is not None:
-              self.image_logging(total)
+              self.bokeh_plotting(total)
+          if self.ipython_display is not None:
+              self.mpl_plotting(total)
 
       return total
 
@@ -159,9 +160,8 @@ class Optimizer():
           if k % save_every == 0:
               validtotal = self.valid_save(validtotal,
                                  validset, what_to_save, where_to_save)
-
-
-          self.iterate_epochs(1, trainset)
+          total.append(self.iterate_epochs(1, trainset))
+      return total, validtotal
 
   def valid_save(self, validtotal, validset, what_to_save, where_to_save):
 
@@ -172,7 +172,7 @@ class Optimizer():
           cPickle.dump(what_to_save, file(where_to_save, 'w'), -1)
       return validtotal
 
-  def image_logging(self, total):
+  def mpl_plotting(self, total):
       if self.ipython_display is not None:
           plt.cla()
           plt.plot(total)
@@ -180,6 +180,7 @@ class Optimizer():
           self.ipython_display.display(plt.gcf())
           time.sleep(0.1)
 
+  def bokeh_plotting(self, total):
       if self.bokeh_server is not None:
           x = range(len(total))
 
