@@ -119,7 +119,6 @@ class Optimizer():
           self.compile()
       total = 0.
       N = 0.
-      #dataset, data_copy = itertools.tee(dataset)
       for b in dataset():
           if not isinstance(b, tuple):
               b = tuple(b)
@@ -135,7 +134,6 @@ class Optimizer():
           self.compile()
       testtotal = 0.
       N = 0.
-      #testset, data_copy = itertools.tee(testset)
       for b in testset():
           if not isinstance(b, tuple):
               b = tuple(b)
@@ -146,7 +144,6 @@ class Optimizer():
   def iterate_epochs(self, nepochs, dataset):
       total = [] #np.zeros(nepochs)
       for k in range(nepochs):
-          #data_copy,dataset = itertools.tee(dataset)
           total.append(self.iterate( dataset ))
           #if self.ipython_display is not None:
           #  self.image_logging(total)
@@ -169,7 +166,6 @@ class Optimizer():
 
   def valid_save(self, validtotal, validset, what_to_save, where_to_save):
 
-      #validset, data_copy = itertools.tee(validset)
       validtotal.append( self.testiterate( validset ) )
       if validtotal[-1] == np.min(validtotal):
           # log saving best model
