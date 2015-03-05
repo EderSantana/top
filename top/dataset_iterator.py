@@ -4,6 +4,7 @@ examples of how to create generators to wrap datasets.
 """
 
 import numpy as np
+import theano
 floatX = theano.config.floatX
 
 class Pylearn2DatasetIterator:
