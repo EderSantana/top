@@ -4,6 +4,7 @@ examples of how to create generators to wrap datasets.
 """
 
 import numpy as np
+floatX = theano.config.floatX
 
 class Pylearn2DatasetIterator:
     """
@@ -107,7 +108,7 @@ def GeneratorWithNoise(dataset,
              ):
         b = [b[i] for i in which_batches]
         t, bsize, dim = b[0].shape # time length, batch size, dim
-        eps = np.random.normal(0,1,size=(t, bsize, noise_size))
+        eps = np.random.normal(0,1,size=(t, bsize, noise_size)).astype(floatX)
         b.append(eps)
         yield b
 

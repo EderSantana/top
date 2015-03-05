@@ -178,7 +178,7 @@ class Optimizer():
           plt.plot(total)
           self.ipython_display.clear_output(wait=True)
           self.ipython_display.display(plt.gcf())
-          time.sleep(0.1)
+          #time.sleep(0.1)
 
   def bokeh_plotting(self, total):
       if self.bokeh_server is not None:
