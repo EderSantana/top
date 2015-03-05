@@ -123,6 +123,12 @@ class Optimizer():
               b = tuple(b)
           total += self.f(*b)
           N = N+1.
+
+      if self.bokeh_server is not None:
+          self.bokeh_plotting(total/N)
+      if self.ipython_display is not None:
+          self.mpl_plotting(total/N)
+
       return total/N
 
   def testiterate(self, testset):
@@ -144,24 +150,19 @@ class Optimizer():
       total = [] #np.zeros(nepochs)
       for k in range(nepochs):
           total.append(self.iterate( dataset ))
-
-          if self.bokeh_server is not None:
-              self.bokeh_plotting(total)
-          if self.ipython_display is not None:
-              self.mpl_plotting(total)
-
       return total
 
-  def train_valid_save(self, nepochs, trainset, validset, what_to_save, where_to_save,
-                       save_every=1):
-      total = []
-      validtotal = []
+  def train_valid_save(self, nepochs, trainset, validset, what_to_save,
+                       where_to_save, save_every=1):
+      self.total = []
+      self.validtotal = []
       for k in range(nepochs):
           if k % save_every == 0:
-              validtotal = self.valid_save(validtotal,
+              self.validtotal = self.valid_save(validtotal,
                                  validset, what_to_save, where_to_save)
-          total.append(self.iterate_epochs(1, trainset))
-      return total, validtotal
+          self.total.append(self.iterate(trainset))
+          yield self
+      #return total, validtotal
 
   def valid_save(self, validtotal, validset, what_to_save, where_to_save):
 
