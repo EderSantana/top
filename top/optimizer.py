@@ -158,7 +158,7 @@ class Optimizer():
       self.validtotal = []
       for k in range(nepochs):
           if k % save_every == 0:
-              self.validtotal = self.valid_save(validtotal,
+              self.validtotal = self.valid_save(self.validtotal,
                                  validset, what_to_save, where_to_save)
           self.total.append(self.iterate(trainset))
           yield self
