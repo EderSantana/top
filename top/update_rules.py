@@ -52,7 +52,8 @@ def adagrad(params, cost, lr=1.0, eps=1e-6, lr_rate=None):
     :param cost: cost function that should be minimized in the optimization
     :param float lr: learning rate
     :param float eps: small constant to avoid division by zero
-    :param float lr_rate: learning rate change factor. Ot should be smaller, but close to one
+    :param float lr_rate: learning rate change factor. Ot should be smaller,
+     but close to one
     """
     zero = np.zeros(1).astype(floatX)[0]
     grads = T.grad(cost, params)
@@ -108,7 +109,8 @@ def rmsprop(parameters,cost=None,gradients=None,
     if not isinstance(parameters,list):
         parameters = [parameters]
     if gradients == None:
-        grads = T.grad(cost,parameters,consider_constant = consider_constant, disconnected_inputs='warn')
+        grads = T.grad(cost,parameters,consider_constant = consider_constant,
+                       disconnected_inputs='warn')
 
     if updates==None:
         updates = []
