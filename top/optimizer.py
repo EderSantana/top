@@ -20,6 +20,33 @@ except:
 
 class Optimizer():
   """Optimizer API
+  
+  Basic usage
+  ----------
+  opt = top.Optimizer(params, cost, method='sgd', input=[X])
+  opt.run(num_epochs, input_data)
+
+  Parameters
+  ---------
+  parameters: list
+      list of theano tensors
+  cost: theano.scalar 
+      theano scalar theano expression
+  method: str
+      a valid optimization method: 'sgd', 'rmsprop', 'adam', 'adagrad'
+  input: list
+      list of theano tensors used to calculate cost
+  givens: dict
+  lr_rate: fload
+      rate change per iteration of the learning rate: lr *= lr_rate 
+  momentum: float
+      rate change per iteration of the momentum: m *= m_rate
+  extra_updatas: OrderedDict
+  grad_clip: float
+      maximum norm for the gradients, valid input for 'rmsprop' and 'adam'
+  ipython_display: IPython.display
+  bokeh_server: str
+      address for a bokeh server
   """
   def __init__(self, parameters, cost, method='sgd',input=[], givens=None,
                constant=None,learning_rate=.001, momentum=None,
