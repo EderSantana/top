@@ -5,7 +5,7 @@ top
 `top` is a lighweight Theano based optimization module. Right now we have only stochastic gradient descent (SGD) and RMSprop, AdaGrad and Adam but you can do wonders with those.
 
 #Prereqs
-Theano, numpy and scipy for main functions.  
+Theano, numpy and scipy for main functions.
 Bokeh and matplotlib for plotting.
 
 #Installation
@@ -42,6 +42,4 @@ print x.get_value()
 print 'Try again!' # Random systems may be ill-posed, you know?
 ```
 
-
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/EderSantana/top/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
