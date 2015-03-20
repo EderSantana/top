@@ -20,7 +20,7 @@ except:
 
 class Optimizer():
   """Optimizer API
-  
+
   Basic usage
   ----------
   opt = top.Optimizer(params, cost, method='sgd', input=[X])
@@ -30,7 +30,7 @@ class Optimizer():
   ---------
   parameters: list
       list of theano tensors
-  cost: theano.scalar 
+  cost: theano.scalar
       theano scalar theano expression
   method: str
       a valid optimization method: 'sgd', 'rmsprop', 'adam', 'adagrad'
@@ -38,7 +38,7 @@ class Optimizer():
       list of theano tensors used to calculate cost
   givens: dict
   lr_rate: fload
-      rate change per iteration of the learning rate: lr *= lr_rate 
+      rate change per iteration of the learning rate: lr *= lr_rate
   momentum: float
       rate change per iteration of the momentum: m *= m_rate
   extra_updatas: OrderedDict
@@ -80,6 +80,9 @@ class Optimizer():
   def compile(self):
     print "$> Compiling optimizer."
 
+    #TODO: automate "install" of new methods.
+    # instead of this switch, should check if the input string is
+    # the name of a valid method
     if self.method.lower() == 'sgd':
         updates = top.up.sgd(self.p, cost=self.cost, lr=self.lr,
                              momentum=self.m, lr_rate=self.lr_rate,
